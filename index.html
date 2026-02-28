@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESI | Диагностика коммуникативной нагрузки</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #141414;
+            --surface-2: #1c1c1c;
+            --border: #2a2a2a;
+            --border-light: #333;
+            --text: #e8e4dc;
+            --text-muted: #7a7570;
+            --text-dim: #4a4642;
+            --accent: #c8b97a;
+            --accent-dim: #8a7e52;
+            --accent-glow: rgba(200, 185, 122, 0.08);
+            --red: #c0392b;
+            --mono: "IBM Plex Mono", monospace;
+            --sans: "IBM Plex Sans", sans-serif;
+            --display: "Bebas Neue", sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.6;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        .topbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar-right {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .topbar-pill {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 3px 10px;
+            color: var(--accent);
+            font-size: 10px;
+            letter-spacing: 0.12em;
+        }
+
+        .research-badge {
+            display: flex;
+            gap: 20px;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .research-badge span::before {
+            content: "– ";
+            color: var(--accent-dim);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 80px 0 72px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-label {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-label::before {
+            content: "";
+            display: block;
+            width: 32px;
+            height: 1px;
+            background: var(--accent-dim);
+        }
+
+        .hero-acronym {
+            font-family: var(--display);
+            font-size: clamp(80px, 13vw, 140px);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .hero-full-name {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent-dim);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+        }
+
+        .hero-hook {
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--text-muted);
+            max-width: 560px;
+            line-height: 1.65;
+            margin-bottom: 48px;
+        }
+
+        .hero-hook strong {
+            color: var(--text);
+            font-weight: 400;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 40px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .hero-meta-item strong {
+            display: block;
+            color: var(--text);
+            font-size: 22px;
+            font-family: var(--display);
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+
+        /* ── SECTIONS ── */
+        section {
+            padding: 72px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .section-label span { color: var(--accent); }
+
+        .section-label::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        h2 {
+            font-family: var(--display);
+            font-size: clamp(32px, 5vw, 48px);
+            line-height: 1.05;
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-weight: 300;
+            margin-bottom: 20px;
+            max-width: 640px;
+        }
+
+        p:last-child { margin-bottom: 0; }
+
+        /* ── CALLOUT ── */
+        .callout {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 28px 32px;
+            margin: 36px 0;
+            position: relative;
+        }
+
+        .callout p {
+            color: var(--text);
+            font-weight: 400;
+            max-width: 100%;
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .callout strong { color: var(--accent); font-weight: 500; }
+
+        /* ── CONTEXT LIST ── */
+        .observation-list {
+            margin: 28px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .obs-item {
+            display: grid;
+            grid-template-columns: 20px 1fr;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .obs-item::before {
+            content: "—";
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding-top: 2px;
+        }
+
+        /* ── MODULE TABLE ── */
+        .module-table {
+            margin: 28px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .module-row {
+            display: grid;
+            grid-template-columns: 36px 1fr;
+            gap: 20px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            align-items: start;
+        }
+
+        .module-letter {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            padding-top: 1px;
+        }
+
+        .module-name { color: var(--text-muted); font-weight: 300; }
+
+        /* ── PROFILES TABLE ── */
+        .profiles-table {
+            margin: 40px 0 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .pt-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 24px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .pt-code {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.06em;
+            padding-top: 2px;
+        }
+
+        .pt-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.65;
+        }
+
+        .pt-note {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 6px;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── REPORT ANATOMY (Section 07) ── */
+        .report-sections {
+            margin: 36px 0 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .rs-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 28px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .rs-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--accent-dim);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding-top: 2px;
+            line-height: 1.5;
+        }
+
+        .rs-content {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        .rs-content strong {
+            color: var(--text);
+            font-weight: 400;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .rs-detail {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            letter-spacing: 0.05em;
+            line-height: 1.7;
+        }
+
+        /* ── SCENARIO CHIPS ── */
+        .scenario-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .chip {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--accent-dim);
+            border: 1px solid var(--border-light);
+            padding: 3px 9px;
+            letter-spacing: 0.06em;
+            background: var(--surface);
+        }
+
+        /* ── PROTOCOL ── */
+        .protocol-items {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .protocol-item {
+            display: grid;
+            grid-template-columns: 48px 1fr;
+            gap: 24px;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .protocol-item:first-child { border-top: 1px solid var(--border); }
+
+        .protocol-num {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            padding-top: 2px;
+        }
+
+        .protocol-content strong {
+            display: block;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .protocol-content p { font-size: 14px; margin: 0; }
+
+        /* ── LIMITATIONS ── */
+        .limits-list {
+            margin: 28px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .limit-item {
+            display: grid;
+            grid-template-columns: 20px 1fr;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+        }
+
+        .limit-item::before {
+            content: "✕";
+            color: var(--red);
+            font-size: 11px;
+            padding-top: 2px;
+        }
+
+        /* ── PARTICIPATION BLOCK ── */
+        .calibration-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .calibration-block h3 {
+            font-family: var(--display);
+            font-size: 32px;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .calibration-block p {
+            font-size: 15px;
+            max-width: 560px;
+        }
+
+        .calibration-meta {
+            display: flex;
+            gap: 40px;
+            margin: 28px 0;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cal-stat strong {
+            display: block;
+            font-family: var(--display);
+            font-size: 28px;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+
+        .cal-stat span {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── CTA ── */
+        .cta-group {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent-dim);
+            padding: 14px 32px;
+            text-decoration: none;
+            font-family: var(--mono);
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-glow);
+        }
+
+        .cta-note {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+        }
+
+        /* ── FOOTER ── */
+        footer { padding: 48px 0 60px; }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .footer-brand {
+            font-family: var(--display);
+            font-size: 28px;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+        }
+
+        .footer-brand span { color: var(--accent-dim); }
+
+        .footer-disclaimer {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            max-width: 580px;
+            border-top: 1px solid var(--border);
+            padding-top: 28px;
+        }
+
+        .footer-disclaimer strong {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-label, .hero-acronym, .hero-full-name, .hero-hook, .hero-meta {
+            animation: fadeUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-label      { animation-delay: 0.05s; }
+        .hero-acronym    { animation-delay: 0.12s; }
+        .hero-full-name  { animation-delay: 0.18s; }
+        .hero-hook       { animation-delay: 0.26s; }
+        .hero-meta       { animation-delay: 0.34s; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .hero-meta { flex-direction: column; gap: 20px; }
+            .calibration-meta { flex-direction: column; gap: 20px; }
+            .topbar-right { display: none; }
+            .footer-top { flex-direction: column; }
+            .pt-row { grid-template-columns: 70px 1fr; }
+            .rs-row { grid-template-columns: 1fr; gap: 8px; }
+            .rs-label { padding-top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <div class="container">
+        <span>RESI / Russian Educational &amp; Somatic Imprint Diagnostic</span>
+        <div class="topbar-right">
+            <span>UNBLOCK ENGLISH LAB</span>
+            <span class="topbar-pill">PILOT v2.1</span>
+        </div>
+    </div>
+</div>
+
+<!-- RESEARCH BADGE -->
+<div class="container">
+    <div class="research-badge">
+        <span>RESI Research Brief</span>
+        <span>Pilot v2.1</span>
+        <span>Internal Reference</span>
+    </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="container">
+        <div class="hero-label">Исследование коммуникативной нагрузки</div>
+
+        <div class="hero-acronym">RESI</div>
+        <div class="hero-full-name">Russian Educational &amp; Somatic Imprint Diagnostic</div>
+
+        <p class="hero-hook">
+            Исследование коммуникативной нагрузки при использовании английского языка
+            у взрослых специалистов.<br><br>
+            <strong>Если английский требует больше энергии, чем должен — эта модель объясняет почему.</strong>
+        </p>
+
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <strong>52</strong>
+                диагностических пункта
+            </div>
+            <div class="hero-meta-item">
+                <strong>6</strong>
+                независимых модулей
+            </div>
+            <div class="hero-meta-item">
+                <strong>15–20 мин</strong>
+                время прохождения
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 01 CONTEXT -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>01</span> Контекст исследования</div>
+        <h2>Наблюдаемая реальность</h2>
+
+        <p>Многие взрослые специалисты демонстрируют достаточный или высокий уровень английского языка, но сообщают о следующем:</p>
+
+        <div class="observation-list">
+            <div class="obs-item">быстрая утомляемость после разговоров на английском</div>
+            <div class="obs-item">снижение спонтанности в условиях оценочного давления</div>
+            <div class="obs-item">избыточная саморегуляция, замедляющая речевой отклик</div>
+            <div class="obs-item">ощущение «я знаю больше, чем могу сказать»</div>
+        </div>
+
+        <div class="callout" style="margin-top: 36px;">
+            <p>RESI не измеряет уровень владения языком. Он анализирует <strong>регуляторную нагрузку</strong>, возникающую в процессе его использования в профессиональной среде.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- 02 METHODOLOGY -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>02</span> Методология</div>
+        <h2>Структура инструмента</h2>
+
+        <p>Инструмент состоит из 52 утверждений, распределённых по 6 модулям и дополнительному Recovery Index.</p>
+
+        <div class="module-table">
+            <div class="module-row">
+                <div class="module-letter">A</div>
+                <div class="module-name">Коммуникативная активация — реактивность в момент речи и антиципаторный компонент</div>
+            </div>
+            <div class="module-row">
+                <div class="module-letter">B</div>
+                <div class="module-name">Стандарты и оценочный перфекционизм — внутренний редактор и страх внешней оценки</div>
+            </div>
+            <div class="module-row">
+                <div class="module-letter">C</div>
+                <div class="module-name">Образовательный отпечаток — система разрешений, зависимость от правила, культурная калибровка</div>
+            </div>
+            <div class="module-row">
+                <div class="module-letter">D</div>
+                <div class="module-name">Соматическая сигнатура — телесный канал активации, режим замирания, энергетическая стоимость</div>
+            </div>
+            <div class="module-row">
+                <div class="module-letter">E</div>
+                <div class="module-name">Поведение в обучении — паттерн избегания, инвестиционная усталость, цикл начало–остановка</div>
+            </div>
+            <div class="module-row">
+                <div class="module-letter">R</div>
+                <div class="module-name">Recovery Index — восстановительный ресурс после нагрузочных взаимодействий</div>
+            </div>
+        </div>
+
+        <p style="margin-top: 28px;">Используется перцентильная логика интерпретации. Отчёт формируется в PDF-формате (≈12 страниц) и включает профиль нагрузки, интерпретацию и структурные рекомендации.</p>
+    </div>
+</section>
+
+
+<!-- 03 DIAGNOSTIC CONFIGURATIONS -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>03</span> Диагностические конфигурации</div>
+        <h2>Типы регуляторной динамики</h2>
+        <p>В пилотной версии выделяются следующие конфигурации. Профиль назначается на основе психометрических критериев — не интерпретационных суждений. Подробная интерпретация предоставляется участникам исследования.</p>
+
+        <div class="profiles-table">
+            <div class="pt-row">
+                <div class="pt-code">P1</div>
+                <div class="pt-description">
+                    Точный и напряжённый — внутренний редактор доминирует над спонтанностью
+                    <div class="pt-note">Основной модуль: B · Recovery Index: умеренно замедлен</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">P2</div>
+                <div class="pt-description">
+                    Режим замирания — повышенная физиологическая стоимость коммуникации
+                    <div class="pt-note">Основной модуль: D · Recovery Index: вариабельный</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">P3</div>
+                <div class="pt-description">
+                    Наблюдатель — система внутренних разрешений, зависимость от достаточности уровня
+                    <div class="pt-note">Основной модуль: C · Recovery Index: зависит от контекста</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">P4</div>
+                <div class="pt-description">
+                    Серийный начинающий — поведенческое избегание, инвестиционный цикл без завершения
+                    <div class="pt-note">Основной модуль: E · Recovery Index: снижен при хронической нагрузке</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">P5</div>
+                <div class="pt-description">
+                    Истощённый специалист — хроническая операционная перегрузка при сохранённой компетентности
+                    <div class="pt-note">Составной модуль: D+E · Recovery Index: снижен при накоплении нагрузки</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">P_A</div>
+                <div class="pt-description">
+                    Реактивная активация — антиципаторный компонент, нагрузка от непредсказуемости
+                    <div class="pt-note">Основной модуль: A</div>
+                </div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">DUAL</div>
+                <div class="pt-description">Двойной паттерн — одновременная активация двух каналов с взаимоусиливающей динамикой</div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">DIFF</div>
+                <div class="pt-description">Диффузная активация — распределённая нагрузка без доминирующего канала</div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">LOW</div>
+                <div class="pt-description">Низкая регуляторная нагрузка — дефицит активации контекстов применения, не блоков</div>
+            </div>
+            <div class="pt-row">
+                <div class="pt-code">COMP</div>
+                <div class="pt-description">Комплексная активация — все пять каналов одновременно, система работает на пределе ресурса</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- 04 PROTOCOL -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>04</span> Протокол прохождения</div>
+        <h2>Условия валидной диагностики</h2>
+        <p>Алгоритм RESI предполагает однократное прохождение. Знание собственного профиля до заполнения формы снижает спонтанность реакций и делает данные статистически нерелевантными.</p>
+
+        <div class="protocol-items">
+            <div class="protocol-item">
+                <div class="protocol-num">01 /</div>
+                <div class="protocol-content">
+                    <strong>Тайминг</strong>
+                    <p>Заложите 15–20 минут без прерываний. Диагностика не предназначена для фрагментированного прохождения.</p>
+                </div>
+            </div>
+            <div class="protocol-item">
+                <div class="protocol-num">02 /</div>
+                <div class="protocol-content">
+                    <strong>Спонтанность ответа</strong>
+                    <p>Не анализируйте утверждения. Первая эмоциональная реакция — наиболее психометрически точная.</p>
+                </div>
+            </div>
+            <div class="protocol-item">
+                <div class="protocol-num">03 /</div>
+                <div class="protocol-content">
+                    <strong>Идентификация</strong>
+                    <p>Email используется исключительно для доставки PDF-отчёта. Данные обрабатываются в деперсонализированном виде в соответствии с ФЗ-152.</p>
+                </div>
+            </div>
+            <div class="protocol-item">
+                <div class="protocol-num">04 /</div>
+                <div class="protocol-content">
+                    <strong>Single-Entry</strong>
+                    <p>Повторное заполнение после прочтения отчёта исключает сессию из нормировочного расчёта.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- 05 LIMITATIONS -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>05</span> Ограничения инструмента</div>
+        <h2>Область применения</h2>
+        <p>RESI анализирует исключительно регуляторную динамику в образовательном и профессиональном контексте.</p>
+
+        <p style="margin-top: 8px;">Инструмент не предназначен для:</p>
+
+        <div class="limits-list">
+            <div class="limit-item">оценки уровня владения английским языком</div>
+            <div class="limit-item">клинической диагностики тревожных состояний</div>
+            <div class="limit-item">замены психотерапевтической работы</div>
+            <div class="limit-item">использования как единственного инструмента при принятии профессиональных решений</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- 06 REPORT ANATOMY — extracted from RESI_AppsScript_v3_commercial.gs -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>06</span> Структура отчёта</div>
+        <h2>Что содержит PDF-отчёт</h2>
+        <p>Отчёт генерируется автоматически на основе алгоритма скоринга и содержит десять последовательных блоков. Каждый блок привязан к конкретному профилю и модульным индексам.</p>
+
+        <div class="report-sections">
+
+            <div class="rs-row">
+                <div class="rs-label">Карта активации</div>
+                <div class="rs-content">
+                    <strong>Индексы по пяти каналам + уровень интенсивности</strong>
+                    Таблица с числовыми индексами для каждого из пяти модулей. Уровень маркируется от «Минимального» до «Очень высокого». Не является рейтингом — отражает интенсивность паттерна, не его проблематичность.
+                    <div class="rs-detail">МОДУЛИ: A · B · C · D · E &nbsp;|&nbsp; УРОВНИ: Минимальный → Умеренный → Повышенный → Высокий → Очень высокий</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Первичный паттерн</div>
+                <div class="rs-content">
+                    <strong>Защитный сценарий — структурная формула и скрытое правило</strong>
+                    Назначается один из десяти профилей. Для каждого — структурная формула, скрытое правило, парадокс, стратегическое несоответствие и точка рычага. Двойной профиль назначается при разнице между двумя доминирующими каналами менее 0.40 балла.
+                    <div class="rs-detail">
+                        P1 Точный и напряжённый &nbsp;·&nbsp;
+                        P2 Режим замирания &nbsp;·&nbsp;
+                        P3 Наблюдатель &nbsp;·&nbsp;
+                        P4 Серийный начинающий &nbsp;·&nbsp;
+                        P5 Истощённый специалист &nbsp;·&nbsp;
+                        P_A Реактивная активация &nbsp;·&nbsp;
+                        DUAL · DIFF · LOW · COMP
+                    </div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Анализ по каналам</div>
+                <div class="rs-content">
+                    <strong>Детализация по уровням: основной — дополнительный — фоновые</strong>
+                    Каналы с индексом выше порогового значения интерпретируются развёрнуто. Основной канал — полная интерпретация. Дополнительный канал — развёрнуто, визуально субординировано. Фоновые каналы — компрессированный формат. Каналы ниже порога не интерпретируются.
+                    <div class="rs-detail">Пороги: основной ≥ 3.50 · дополнительный ≥ 3.10 · фоновый ≥ 2.80</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Механизм поддержания</div>
+                <div class="rs-content">
+                    <strong>Вторичный канал и его роль в динамике основного паттерна</strong>
+                    Для одиночных профилей с выраженным вторичным каналом — описание того, как вторичный канал усиливает или закрепляет основной механизм. Для двойных профилей — каузальная цепочка взаимодействия двух каналов и точка рычага.
+                    <div class="rs-detail">Вторичные каналы: A (антиципаторный) · C (образовательный отпечаток) · D (соматический)</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Совместимость форматов</div>
+                <div class="rs-content">
+                    <strong>Структурный анализ форматов обучения относительно профиля</strong>
+                    Таблица: каждый формат — направление влияния (↑ усиливает нагрузку / ↓ снижает) и механизм. Шесть форматов: индивидуальный репетитор, обучающая платформа, ИИ-инструменты, групповые занятия, самостоятельное обучение. Анализ привязан к доминирующему модулю.
+                    <div class="rs-detail">Не рекомендация метода. Структурный анализ совместимости паттерна с форматом.</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Направление вперёд</div>
+                <div class="rs-content">
+                    <strong>Переосмысление · Структурная корректировка · Микро-ритуал</strong>
+                    Три конкретных блока, привязанных к профилю. Переосмысление — не мотивационный текст, а перекалибровка интерпретации паттерна. Корректировка — одно структурное изменение контекста. Ритуал — практика до пяти минут с конкретным механизмом действия.
+                    <div class="rs-detail">Примеры ритуалов: практика условного разрешения (P3) · слово-якорь (P2) · приблизительная речь (P1) · восстановительный переход (P5)</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Экономика нагрузки</div>
+                <div class="rs-content">
+                    <strong>Зеркало · Переосмысление · Динамика без изменений · Скрытый бюджет</strong>
+                    Четыре компонента. Зеркало: поведенческие признаки профиля в формате узнавания. Переосмысление: структурное объяснение механизма без патологизации. Динамика: что происходит, если паттерн не адресован. Скрытый бюджет: конкретные невидимые затраты — время, энергия, пропущенные ситуации. Блок завершается точкой изменения.
+                    <div class="rs-detail">Блок работает с когнитивной нагрузкой и энергетическими затратами. Финансовые прогнозы исключены.</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Направление движения</div>
+                <div class="rs-content">
+                    <strong>Точка входа · Принцип формата · Последовательность · Риск неверного выбора</strong>
+                    Структурированный план для конкретного профиля. Точка входа — что адресовать первым. Принцип формата — критерий выбора обучающего контекста. Последовательность — три шага в правильном порядке. Риск — какие стратегии усилят нагрузку вместо её снижения.
+                    <div class="rs-detail">Не универсальный план. Привязан к доминирующему каналу и конфигурации профиля.</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Контекстуальная калибровка</div>
+                <div class="rs-content">
+                    <strong>Образовательная среда как фактор формирования паттерна</strong>
+                    Блок объясняет, как конкретная образовательная система сформировала измеряемый паттерн. Индексы активации нормированы относительно русскоязычной выборки — не абсолютной шкалы. Присутствует только если паттерн имеет культурно-специфическое происхождение.
+                    <div class="rs-detail">Без идеологической критики образовательной системы. Только структурное происхождение паттерна.</div>
+                </div>
+            </div>
+
+            <div class="rs-row">
+                <div class="rs-label">Границы анализа</div>
+                <div class="rs-content">
+                    <strong>Что отчёт не измеряет · Открытый параметр</strong>
+                    Фиксирует пределы инструмента: скорость восстановления после взаимодействий, контекстные триггеры, условия усиления паттерна — не измеряются единичной оценкой. Открытый параметр: один вопрос, оставшийся без ответа — и почему он определяет следующий шаг.
+                    <div class="rs-detail">Заключительный блок. Не CTA. Структурное завершение анализа.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- 07 PARTICIPATION -->
+<section>
+    <div class="container">
+        <div class="section-label"><span>07</span> Участие в пилотной калибровке</div>
+        <h2>Нормировочная выборка</h2>
+        <p>Текущий этап — ограниченная калибровочная выборка (N = 50). Участие включает однократное прохождение инструмента и получение индивидуального отчёта. Анонимизированные данные используются для уточнения нормировочных показателей.</p>
+
+        <div class="calibration-block">
+            <h3>Условия участия</h3>
+            <p>Ваши деперсонализированные данные используются исключительно для повышения точности перцентильной интерпретации. Индивидуальные ответы не идентифицируются и не передаются третьим сторонам.</p>
+
+            <div class="calibration-meta">
+                <div class="cal-stat">
+                    <strong>N = 50</strong>
+                    <span>целевой объём выборки</span>
+                </div>
+                <div class="cal-stat">
+                    <strong>PDF / 12 стр.</strong>
+                    <span>аналитический отчёт</span>
+                </div>
+                <div class="cal-stat">
+                    <strong>Бесплатно</strong>
+                    <span>на этапе нормирования</span>
+                </div>
+            </div>
+
+            <div class="cta-group">
+                <a href="https://t.me/unblock_eng" class="btn-primary">Перейти к инструменту</a>
+                <span class="cta-note">Telegram: @unblock_eng · Code: RESI Pilot</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-top">
+            <div class="footer-brand">UNBLOCK<br><span>ENGLISH</span></div>
+        </div>
+        <div class="footer-disclaimer">
+            <strong>ЮРИДИЧЕСКИЙ ДИСКЛЕЙМЕР</strong>
+            RESI является образовательным инструментом самооценки и личностного анализа. Он не является клиническим тестом и не предназначен для постановки медицинских или психиатрических диагнозов. Все данные обрабатываются в анонимизированном виде в соответствии с Федеральным законом № 152-ФЗ «О персональных данных».<br><br>
+            Laboratory of Foreign Language Anxiety Research &amp; Data Analysis © 2026
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
